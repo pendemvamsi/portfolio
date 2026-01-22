@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pendem Vamsi – Solo Leveling Portfolio</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:ital,wght@0,400;0,700;1,800&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#000; overflow:hidden;
+      font-family:'Exo 2',sans-serif; color:#e0faff;
+      height:100vh; position:relative;
+    }
+
+    /* ── Acceptance Screen ── */
+    #accept-screen { position:fixed; inset:0; z-index:1000; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#000407,#0a001f); cursor: pointer; }
+    .room-bg,.room-texture,.vignette,.flare-container { position:absolute; inset:0; pointer-events:none; }
+    .room-bg { background: radial-gradient(ellipse at 50% 30%,rgba(10,20,60,0.12) 0%,transparent 60%), radial-gradient(circle at 20% 80%,rgba(0,80,180,0.08) 0%,transparent 50%); opacity:0.7; }
+    .room-texture { background:url('https://www.transparenttextures.com/patterns/dark-mosaic.png'); background-size:400px; opacity:0.06; mix-blend-mode:screen; }
+    .vignette { background:radial-gradient(circle at center,transparent 40%,rgba(0,0,0,0.8) 100%); }
+    .flare-container { background: radial-gradient(circle at 50% 15%,rgba(0,210,255,0.18)0%,transparent 55%), radial-gradient(circle at 15% 75%,rgba(0,120,255,0.12)0%,transparent 45%), radial-gradient(circle at 85% 25%,rgba(100,0,255,0.08)0%,transparent 50%); opacity:0.9; animation:flare-breathe 12s ease-in-out infinite alternate; }
+    @keyframes flare-breathe { 0%{opacity:0.85;transform:scale(1);} 100%{opacity:1;transform:scale(1.04);} }
+
+    .system-viewport { perspective:1300px; filter:drop-shadow(0 0 35px rgba(0,180,255,0.45)); z-index:2; }
+    .hologram-card { position:relative; width:820px; height:440px; transform:rotateX(8deg) rotateY(3deg); transform-style:preserve-3d; }
+    .panel-surface { position:absolute; inset:0; background:rgba(0,15,30,0.89); border:1px solid rgba(0,210,255,0.28); background-image:url('https://www.transparenttextures.com/patterns/carbon-fibre.png'),linear-gradient(rgba(0,210,255,0.06)1px,transparent 1px); background-size:140%,100% 3px; box-shadow:inset 0 0 90px rgba(0,110,255,0.18); clip-path:polygon(2% 0%,98% 0%,100% 8%,100% 92%,98% 100%,2% 100%,0% 92%,0% 8%); }
+    .rail { position:absolute; width:104%; height:14px; left:-2%; background:#00d2ff; filter:blur(1.5px); box-shadow:0 0 14px #00d2ff,0 0 40px rgba(0,210,255,0.9),0 0 80px rgba(0,210,255,0.5); }
+    .rail-top { top:-7px; } .rail-bottom { bottom:-7px; }
+    .notification-box { position:absolute; top:50px; left:50%; transform:translateX(-50%); display:flex; align-items:center; padding:12px 50px; border:1px solid rgba(255,255,255,0.45); background:rgba(0,40,70,0.55); box-shadow:0 0 25px rgba(0,210,255,0.35); }
+    .icon-circle { width:44px; height:44px; border:2px solid white; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:32px; font-weight:900; color:white; margin-right:25px; filter:drop-shadow(0 0 10px white); }
+    .title { color:white; font-size:38px; font-weight:800; letter-spacing:10px; text-transform:uppercase; text-shadow:0 0 18px rgba(0,210,255,0.85); }
+    .content-body { position:absolute; width:100%; top:220px; text-align:center; color:rgba(220,240,255,0.92); font-size:26px; line-height:1.8; letter-spacing:1.5px; }
+    .player-text { color:#fff; font-weight:800; font-style:italic; text-shadow:0 0 12px #00d2ff,0 0 24px #00d2ff; }
+    .scanline { position:absolute; width:100%; height:100px; background:linear-gradient(to bottom,transparent,rgba(0,210,255,0.08),transparent); top:-100px; }
+    .particles { position:absolute; inset:0; pointer-events:none; z-index:1; }
+    .particle { position:absolute; width:2px; height:2px; background:rgba(0,210,255,0.6); border-radius:50%; box-shadow:0 0 8px rgba(0,210,255,0.8); animation:drift 15s linear infinite; }
+    @keyframes drift { 0%{transform:translateY(100vh) translateX(0); opacity:0;} 100%{transform:translateY(-100vh) translateX(30vw); opacity:0;} }
+
+    /* ── Main Content ── */
+    .main-content { position:fixed; inset:0; opacity:0; pointer-events:none; }
+    .scene { position:relative; width:100vw; height:100vh; background: radial-gradient(circle at 50% 30%,rgba(10,30,60,.88),#02060f 70%), linear-gradient(#000814,#001233); }
+    .hud-top { position:absolute; top:20px; left:30px; right:30px; display:flex; justify-content:space-between; font-size:18px; font-weight:700; letter-spacing:3px; text-shadow:0 0 14px #00ffffaa; z-index:10; font-family:'Orbitron',sans-serif; }
+    .map { position:absolute; inset:0; perspective:1800px; }
+    .section-gate { position:absolute; width:220px; height:220px; border-radius:50%; display:grid; place-items:center; cursor:pointer; transform-style:preserve-3d; border:2px solid var(--color); background:rgba(5,15,35,.4); backdrop-filter:blur(6px); box-shadow:0 0 40px var(--color),inset 0 0 25px var(--color); transition:transform .6s; }
+    .section-gate:hover { transform: scale(1.12) rotateX(10deg) rotateY(5deg); }
+    .section-gate span { font-size:2.8rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; font-family:'Orbitron',sans-serif; }
+    .section-gate::before { content:""; position:absolute; inset:-50px; border-radius:50%; border:3px dashed currentColor; animation:spin 22s linear infinite; opacity:.6; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+
+    /* ── Quest Notification ── */
+    #initial-quest-notification {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:680px; min-height:320px;
+      background:rgba(0,12,28,0.96); border:2px solid #00ffff;
+      box-shadow:0 0 70px rgba(0,210,255,0.6);
+      border-radius:10px; clip-path:polygon(4% 0%,96% 0%,100% 10%,100% 90%,96% 100%,4% 100%,0% 90%,0% 10%);
+      padding:40px 30px; text-align:center; z-index:980; opacity:0; display:none;
+    }
+    .quest-notification-header { font-family:'Orbitron',sans-serif; font-size:2.6rem; color:#00ffff; text-shadow:0 0 30px #00ffff; margin-bottom:20px; text-transform:uppercase; }
+    .quest-notification-title { font-size:2rem; color:#a0f0ff; margin:20px 0 15px; }
+    .quest-notification-body { font-size:1.35rem; line-height:1.6; color:#d0f0ff; }
+    .quest-notification-btn { padding:14px 50px; margin-top:30px; font-size:1.4rem; font-weight:bold; background:transparent; border:2px solid #00ffcc; color:#00ffcc; cursor:pointer; transition: 0.3s; }
+    .quest-notification-btn:hover { background:rgba(0,255,204,0.1); box-shadow:0 0 30px #00ffcc; }
+
+    /* Gate Positions */
+    .gate-1 { --color:#00ffcc; top:18%; left:12%; }
+    .gate-2 { --color:#00aaff; top:22%; left:38%; }
+    .gate-3 { --color:#ff88ff; top:35%; left:65%; }
+    .gate-4 { --color:#ff66aa; top:52%; left:18%; }
+    .gate-5 { --color:#ffaa44; top:48%; left:55%; }
+    .gate-6 { --color:#44ffaa; top:65%; left:28%; }
+    .gate-7 { --color:#aa88ff; top:72%; left:68%; }
+    .gate-8 { --color:#ffdd44; top:45%; left:82%; }
+    .gate-9 { --color:#00ff88; top:60%; left:45%; }
+
+    /* Basic modal style for sections (expand as needed) */
+    .section-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none;
+      justify-content: center; align-items: center; z-index: 990; color: #e0faff;
+      font-family: 'Exo 2', sans-serif;
+    }
+    .modal-content {
+      background: rgba(0,15,30,0.92); border: 2px solid #00d2ff; padding: 40px;
+      max-width: 800px; border-radius: 12px; box-shadow: 0 0 60px rgba(0,210,255,0.5);
+      text-align: left; line-height: 1.6;
+    }
+   
+    .modal-close { float: right; font-size: 2rem; cursor: pointer; color: #00ffff; }
+  /* ── Solo Leveling Status Window Styles ── */
+.status-window {
+  width: 95%;
+  max-width: 650px;
+  background: rgba(0, 15, 30, 0.98) !important;
+  border: 1px solid #00d2ff !important;
+  box-shadow: 0 0 40px rgba(0, 210, 255, 0.2), inset 0 0 30px rgba(0, 110, 255, 0.1);
+  padding: 30px !important;
+  font-family: 'Exo 2', sans-serif;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid rgba(0, 210, 255, 0.4);
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.status-main-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.2rem;
+  color: #00ffff;
+  letter-spacing: 5px;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+}
+
+.status-subtitle {
+  font-size: 0.8rem;
+  color: #888;
+  letter-spacing: 2px;
+}
+
+.player-rank {
+  text-align: right;
+  border: 1px solid #00ffff;
+  padding: 5px 15px;
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.rank-label { display: block; font-size: 0.7rem; color: #00ffff; }
+.rank-value { font-size: 1.1rem; font-weight: 900; color: #fff; }
+
+.status-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 25px;
+}
+
+.info-item { margin-bottom: 12px; }
+.info-label { color: #888; font-size: 0.85rem; display: block; }
+.info-value { color: #fff; font-size: 1.1rem; font-weight: 700; font-family: 'Orbitron'; }
+.highlight { color: #00ffff; text-shadow: 0 0 8px #00ffff; }
+
+.stat-box { margin-bottom: 15px; }
+.stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #00ffff;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stat-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0066ff, #00ffff);
+  box-shadow: 0 0 10px #00ffff;
+}
+
+.status-description {
+  background: rgba(0, 255, 255, 0.05);
+  border-left: 4px solid #00ffff;
+  padding: 20px;
+}
+
+.desc-header {
+  font-family: 'Orbitron', sans-serif;
+  color: #00ffff;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+.status-description p {
+  color: #e0faff;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+/* ── Growth Log / Education Styles ── */
+.growth-window {
+  width: 95%;
+  max-width: 600px;
+  background: rgba(0, 5, 15, 0.98) !important;
+  border-right: 4px solid #00aaff !important; /* Side Accent */
+}
+
+.growth-timeline {
+  position: relative;
+  padding-left: 30px;
+  margin-top: 20px;
+}
+
+/* Vertical Timeline Line */
+.growth-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #00aaff, transparent);
+  box-shadow: 0 0 10px #00aaff;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 35px;
+}
+
+/* Glowing Marker */
+.timeline-marker {
+  position: absolute;
+  left: -31px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border: 2px solid #00aaff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00aaff;
+}
+
+.growth-date {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.growth-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.growth-location {
+  font-size: 0.95rem;
+  color: #a0f0ff;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.growth-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.stat-tag {
+  background: rgba(0, 170, 255, 0.15);
+  border: 1px solid rgba(0, 170, 255, 0.5);
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  color: #00aaff;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.highlight {
+  color: #00aaff;
+  text-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+}
+/* ── Nexus Terminal V100 ── */
+.nexus-terminal {
+  width: 1100px;
+  max-width: 95%;
+  background: rgba(0, 8, 15, 0.98) !important;
+  border: 1px solid #00f2ff !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  clip-path: polygon(0 20px, 20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+  box-shadow: 0 0 100px rgba(0,0,0,1);
+}
+
+.nexus-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.nexus-main-title { font-size: 1.8rem; letter-spacing: 8px; color: #fff; margin: 0; }
+.nexus-subtitle { font-size: 0.7rem; color: #00f2ff; opacity: 0.7; }
+
+.nexus-scroll-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+.nexus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+/* Data Box Elevation */
+.nexus-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  position: relative;
+  transition: 0.4s;
+}
+
+.nexus-box:hover {
+  transform: translateY(-5px);
+  background: rgba(var(--n-color), 0.05);
+  border-color: var(--n-color);
+  box-shadow: 0 0 20px var(--n-color);
+}
+
+.box-tag {
+  font-size: 0.65rem;
+  color: var(--n-color);
+  margin-bottom: 15px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.primary-box { grid-column: span 2; border-left: 4px solid #00f2ff; }
+.wide-box { grid-column: span 3; }
+
+/* Content Internal Styling */
+.lang-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lang-item {
+  background: rgba(0,0,0,0.5);
+  padding: 10px;
+  text-align: center;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.node-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.node-list span {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ccc;
+}
+
+.logic-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.logic-cell {
+  font-size: 0.7rem;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.02);
+  text-align: center;
+}
+
+/* Animations */
+.status-pulse {
+  display: inline-block; width: 10px; height: 10px; background: #00ff88;
+  border-radius: 50%; box-shadow: 0 0 10px #00ff88; animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+.scan-bar {
+  position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+  background: #00f2ff; box-shadow: 0 0 15px #00f2ff; animation: scan 3s linear infinite;
+}
+@keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+
+@media (max-width: 900px) {
+  .nexus-grid { grid-template-columns: 1fr; }
+  .primary-box, .wide-box { grid-column: span 1; }
+  .logic-matrix { grid-template-columns: 1fr 1fr; }
+}
+/* ── Experience Terminal Styles ── */
+.experience-terminal {
+  width: 900px;
+  max-width: 95%;
+  background: rgba(5, 5, 15, 0.98) !important;
+  border: 1px solid rgba(255, 102, 170, 0.3) !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  box-shadow: 0 0 50px rgba(0,0,0,1);
+}
+
+.quest-title {
+  font-size: 2rem;
+  letter-spacing: 8px;
+  color: #ff66aa;
+  text-shadow: 0 0 15px rgba(255, 102, 170, 0.5);
+  margin-bottom: 5px;
+}
+
+.system-readout {
+  font-size: 0.7rem;
+  color: #555;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+}
+
+.readout-item { margin-right: 20px; }
+
+/* Timeline Structure */
+.quest-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.quest-item {
+  display: flex;
+  gap: 30px;
+}
+
+.quest-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quest-number {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--q-color);
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  color: var(--q-color);
+  background: rgba(0,0,0,0.5);
+  transform: rotate(45deg);
+}
+
+.quest-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--q-color), transparent);
+  margin-top: 15px;
+}
+
+/* Holographic Card */
+.quest-card-v2 {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  position: relative;
+  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.quest-card-v2:hover {
+  transform: scale(1.02) translateX(10px);
+  border-color: var(--q-color);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.quest-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.company-name {
+  color: var(--q-color);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.quest-rank {
+  font-size: 0.8rem;
+  color: #fff;
+  background: var(--q-color);
+  padding: 2px 10px;
+  box-shadow: 0 0 10px var(--q-color);
+}
+
+.quest-role {
+  font-size: 0.8rem;
+  color: #00f2ff;
+  margin-bottom: 5px;
+}
+
+.quest-duration {
+  font-size: 0.7rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.quest-objective {
+  font-family: sans-serif;
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.obj-line {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.obj-line span {
+  width: 6px;
+  height: 6px;
+  background: var(--q-color);
+  margin-top: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.quest-rewards {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.reward-tag {
+  font-size: 0.65rem;
+  color: var(--q-color);
+  border: 1px solid var(--q-color);
+  padding: 3px 8px;
+  background: rgba(var(--q-color), 0.1);
+}
+
+@media (max-width: 768px) {
+  .quest-item { flex-direction: column; gap: 10px; }
+  .quest-meta { flex-direction: row; height: auto; }
+  .quest-line { width: 40px; height: 2px; }
+}
+/* ── Arsenal Terminal Styles ── */
+.arsenal-terminal {
+  width: 1050px;
+  max-width: 95%;
+  background: rgba(2, 5, 10, 0.98) !important;
+  border: 1px solid #ffaa44 !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  clip-path: polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px);
+}
+
+.arsenal-title {
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+  color: #ffaa44;
+  text-shadow: 0 0 15px rgba(255, 170, 68, 0.4);
+}
+
+.system-stats {
+  font-size: 0.7rem;
+  color: #555;
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
+
+.arsenal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Project Card Elevation */
+.project-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 25px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--p-glow);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(var(--p-glow), 0.1);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.project-rank {
+  font-size: 0.65rem;
+  color: var(--p-glow);
+  border: 1px solid var(--p-glow);
+  padding: 2px 8px;
+  font-weight: 900;
+}
+
+.project-date { font-size: 0.65rem; color: #555; }
+
+.project-name {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+
+.project-tagline {
+  font-size: 0.7rem;
+  color: var(--p-glow);
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.project-details {
+  font-family: sans-serif;
+  font-size: 0.85rem;
+  color: #aaa;
+  flex-grow: 1;
+}
+
+.detail-line {
+  display: flex;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.detail-line span {
+  width: 4px; height: 4px;
+  background: var(--p-glow);
+  margin-top: 7px; margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.tech-stack {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tech-stack span {
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ddd;
+}
+
+.terminal-footer {
+  margin-top: 30px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 15px;
+  font-size: 0.6rem;
+  color: #444;
+  text-align: center;
+  letter-spacing: 3px;
+}
+
+/* Custom Scrollbar */
+.arsenal-grid::-webkit-scrollbar { width: 4px; }
+.arsenal-grid::-webkit-scrollbar-thumb { background: #ffaa44; }
+
+@media (max-width: 850px) {
+  .arsenal-grid { grid-template-columns: 1fr; }
+}
+/* ── Certification Vault Styles ── */
+.vault-terminal {
+  width: 800px;
+  max-width: 95%;
+  background: rgba(1, 10, 15, 0.98) !important;
+  border: 1px solid #44ffaa !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  position: relative;
+  box-shadow: 0 0 40px rgba(68, 255, 170, 0.2);
+}
+
+.vault-title {
+  font-size: 1.6rem;
+  letter-spacing: 5px;
+  color: #44ffaa;
+  text-shadow: 0 0 15px rgba(68, 255, 170, 0.4);
+}
+
+.security-status {
+  font-size: 0.6rem;
+  color: #666;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+}
+
+.vault-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Achievement Card Style */
+.achievement-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.achievement-card:hover {
+  transform: scale(1.02);
+  border-color: var(--a-color);
+  background: rgba(var(--a-color), 0.05);
+  box-shadow: -5px 0 15px var(--a-color);
+}
+
+/* Hex Badge Design */
+.achievement-header {
+  position: relative;
+  margin-right: 25px;
+}
+
+.hex-badge {
+  width: 60px;
+  height: 60px;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid var(--a-color);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: var(--a-color);
+  font-size: 0.9rem;
+}
+
+.badge-glow {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  box-shadow: 0 0 20px var(--a-color);
+  opacity: 0.2;
+}
+
+/* Info & Progress Bar */
+.achievement-info { flex: 1; }
+
+.cert-name {
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.cert-issuer {
+  font-size: 0.65rem;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.valid-bar {
+  height: 3px;
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  margin-bottom: 8px;
+}
+
+.valid-bar .fill {
+  height: 100%;
+  width: 100%;
+  background: var(--a-color);
+  box-shadow: 0 0 10px var(--a-color);
+}
+
+.cert-status {
+  font-size: 0.5rem;
+  color: var(--a-color);
+  letter-spacing: 1px;
+}
+
+.terminal-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.55rem;
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  .achievement-card { padding: 15px; }
+  .hex-badge { width: 45px; height: 45px; font-size: 0.7rem; }
+}
+/* ── Achievement Terminal V100 ── */
+.achievement-terminal {
+  width: 900px;
+  max-width: 95%;
+  background: rgba(1, 5, 12, 0.98) !important;
+  border: 1px solid #aa88ff !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  clip-path: polygon(0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px));
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.title-glitch {
+  font-size: 1.8rem;
+  letter-spacing: 5px;
+  color: #aa88ff;
+  text-shadow: 0 0 10px #aa88ff;
+}
+
+.achievement-score {
+  text-align: right;
+  border-right: 3px solid #aa88ff;
+  padding-right: 15px;
+}
+
+.score-label { font-size: 0.6rem; color: #555; display: block; }
+.score-value { font-size: 1.2rem; color: #fff; font-weight: bold; }
+
+.header-divider {
+  height: 1px;
+  background: linear-gradient(90deg, #aa88ff, transparent);
+  margin: 15px 0 30px 0;
+}
+
+/* Feat Cards */
+.feats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feat-card {
+  display: flex;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  transition: 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feat-card:hover {
+  background: rgba(170, 136, 255, 0.05);
+  border-color: var(--f-color);
+  transform: scale(1.01);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(var(--f-color), 0.2);
+}
+
+.feat-decoration {
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  margin-right: 20px;
+}
+
+.feat-icon {
+  font-size: 2.2rem;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 0 10px var(--f-color));
+}
+
+.feat-rank {
+  font-size: 0.6rem;
+  color: var(--f-color);
+  font-weight: 900;
+}
+
+.feat-body { flex: 1; }
+
+.feat-title {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.feat-desc {
+  font-family: sans-serif;
+  font-size: 0.9rem;
+  color: #888;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.highlight { color: var(--f-color); font-weight: bold; }
+
+.feat-meta {
+  font-size: 0.6rem;
+  color: #444;
+  letter-spacing: 1px;
+}
+
+/* Footer Scanner */
+.footer-scanner {
+  height: 1px;
+  background: #aa88ff;
+  width: 100%;
+  margin-top: 30px;
+  opacity: 0.3;
+  animation: scan-line 2s linear infinite;
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+
+.footer-text {
+  font-size: 0.55rem;
+  color: #333;
+  text-align: center;
+  margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+  .feat-card { flex-direction: column; text-align: center; }
+  .feat-decoration { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
+}
+/* ── Contact Terminal V100 ── */
+.contact-terminal {
+  width: 700px;
+  max-width: 95%;
+  background: rgba(1, 10, 20, 0.98) !important;
+  border: 1px solid #ffdd44 !important;
+  padding: 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
+  box-shadow: 0 0 50px rgba(255, 221, 68, 0.15);
+}
+
+.signal-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.signal-status span { font-size: 0.5rem; color: #ffdd44; letter-spacing: 2px; }
+
+/* Signal Wave Animation */
+.wave {
+  width: 4px; height: 10px; background: #ffdd44;
+  animation: wave-grow 1s ease-in-out infinite;
+}
+.wave:nth-child(2) { animation-delay: 0.2s; height: 15px; }
+.wave:nth-child(3) { animation-delay: 0.4s; height: 20px; }
+
+@keyframes wave-grow {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.5); }
+}
+
+.terminal-title {
+  font-size: 1.8rem;
+  letter-spacing: 10px;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(255, 221, 68, 0.5);
+  margin-bottom: 30px;
+}
+
+.uplink-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Uplink Card Styling */
+.uplink-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 25px;
+  text-decoration: none;
+  color: #fff;
+  position: relative;
+  transition: 0.3s;
+}
+
+.uplink-card.interactive:hover {
+  background: rgba(var(--u-color), 0.1);
+  border-color: var(--u-color);
+  transform: translateX(10px);
+  box-shadow: -5px 0 20px rgba(var(--u-color), 0.3);
+}
+
+.uplink-icon {
+  font-size: 1.5rem;
+  margin-right: 20px;
+  filter: drop-shadow(0 0 5px var(--u-color));
+}
+
+.data-label {
+  font-size: 0.6rem;
+  color: var(--u-color);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.data-value { font-size: 0.9rem; color: #fff; }
+
+.external-tag {
+  position: absolute;
+  right: 20px;
+  font-size: 0.5rem;
+  color: #444;
+  border: 1px solid #333;
+  padding: 2px 6px;
+}
+
+/* Identity Scan Animation */
+.identity-scan {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.identity-scan p { font-size: 0.6rem; color: #555; }
+
+.scan-line {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 1px;
+  background: #ffdd44;
+  box-shadow: 0 0 10px #ffdd44;
+  animation: scan-move 3s linear infinite;
+}
+
+@keyframes scan-move {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(50px); opacity: 0; }
+}
+/* ── Gameplay Contact UI ── */
+.contact-game-ui {
+  width: 800px;
+  max-width: 95%;
+  background: radial-gradient(circle at center, rgba(15, 25, 40, 0.95) 0%, rgba(2, 5, 10, 1) 100%) !important;
+  border: 1px solid rgba(255, 221, 68, 0.3) !important;
+  border-top: 4px solid #ffdd44 !important;
+  padding: 50px 40px !important;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  position: relative;
+  text-align: center;
+}
+
+/* Corner Signal */
+.ui-corner-decor {
+  position: absolute;
+  top: 15px; left: 20px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.6rem; color: #ffdd44; letter-spacing: 2px;
+}
+.pulsing-dot {
+  width: 6px; height: 6px; background: #ffdd44; border-radius: 50%;
+  box-shadow: 0 0 10px #ffdd44; animation: pulse 1s infinite;
+}
+
+/* Header */
+.quest-reward-header { margin-bottom: 40px; }
+.quest-main-title { font-size: 2.5rem; letter-spacing: 15px; margin: 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+.quest-subtitle { font-size: 0.7rem; color: #666; letter-spacing: 4px; margin-top: 10px; }
+
+/* Contact Slots (The Rewards) */
+.contact-slots {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 50px;
+}
+
+.reward-slot {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  display: flex; align-items: center;
+  gap: 15px; text-decoration: none; transition: 0.3s;
+}
+
+.interactive-slot:hover {
+  background: rgba(var(--slot-color), 0.1);
+  border-color: var(--slot-color);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.slot-hex {
+  width: 45px; height: 45px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--slot-color);
+  display: grid; place-items: center; font-size: 1.2rem;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.slot-info { text-align: left; }
+.slot-type { font-size: 0.5rem; color: var(--slot-color); display: block; letter-spacing: 1px; }
+.slot-val { font-size: 0.8rem; color: #fff; }
+
+.click-hint { font-size: 0.5rem; margin-left: auto; color: #444; border: 1px solid #333; padding: 2px 5px; }
+
+/* THE BIG GAMEPLAY EXIT BUTTON */
+.quest-action-area {
+  display: flex; justify-content: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px;
+}
+
+.claim-button {
+  width: 350px;
+  background: #ffdd44;
+  color: #000;
+  padding: 15px;
+  cursor: pointer;
+  position: relative;
+  transition: 0.3s;
+  clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+}
+
+.claim-button:hover {
+  background: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 221, 68, 0.5);
+}
+
+.btn-text { display: block; font-weight: 900; font-size: 1rem; letter-spacing: 2px; }
+.btn-sub { font-size: 0.5rem; font-weight: bold; opacity: 0.7; }
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+@media (max-width: 700px) {
+  .contact-slots { grid-template-columns: 1fr; }
+  .claim-button { width: 100%; }
+}
+
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      overflow: hidden;
+      font-family: 'Exo 2', sans-serif;
+      color: #e0faff;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* ── Acceptance Screen ── */
+    #accept-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #000407, #0a001f);
+      cursor: pointer;
+    }
+
+    .room-bg, .room-texture, .vignette, .flare-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .flare-container {
+      background: radial-gradient(circle at 50% 15%, rgba(0,210,255,0.18) 0%, transparent 55%),
+                  radial-gradient(circle at 15% 75%, rgba(0,120,255,0.12) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 25%, rgba(100,0,255,0.08) 0%, transparent 50%);
+      opacity: 0.9;
+    }
+
+    .system-viewport {
+      perspective: 1300px;
+      filter: drop-shadow(0 0 35px rgba(0,180,255,0.45));
+      z-index: 2;
+      width: 90%;
+      max-width: 860px;
+    }
+
+    .hologram-card {
+      width: 100%;
+      height: 420px;
+      transform: rotateX(8deg) rotateY(3deg);
+      transform-style: preserve-3d;
+    }
+
+    /* ── Main Content ── */
+    .main-content {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .hud-top {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: clamp(14px, 2.2vw, 18px);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #00ffffaa;
+      z-index: 10;
+      font-family: 'Orbitron', sans-serif;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* ── Gates / Portals ── */
+    .map {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: center;
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .section-gate {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      border: 2px solid var(--color);
+      background: rgba(5,15,35,0.4);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 40px var(--color), inset 0 0 25px var(--color);
+      transition: all 0.4s ease;
+      flex: 0 0 auto;
+    }
+
+    .section-gate:hover {
+      transform: scale(1.12) rotateX(10deg) rotateY(5deg);
+      box-shadow: 0 0 70px var(--color), inset 0 0 40px var(--color);
+    }
+
+    .section-gate span {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-shadow: 0 0 30px currentColor;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      padding: 0 10px;
+    }
+
+    /* Quest Notification – responsive */
+    #initial-quest-notification {
+      width: 90%;
+      max-width: 680px;
+      min-height: 280px;
+      padding: 5vw;
+      font-size: clamp(14px, 2.5vw, 16px);
+    }
+
+    .quest-notification-header {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+    }
+
+    .quest-notification-title {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+    }
+
+    /* Modal base – responsive */
+    .section-modal {
+      padding: 10px;
+    }
+
+    .modal-content {
+      width: 94%;
+      max-width: 1100px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: clamp(20px, 5vw, 50px);
+      border-radius: 16px;
+    }
+
+    .modal-close {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      position: sticky;
+      top: 10px;
+      float: right;
+      z-index: 10;
+    }
+
+    /* ── Responsive Gates Layout ── */
+    @media (max-width: 1200px) {
+      .section-gate { width: 160px; height: 160px; }
+      .section-gate span { font-size: 2.2rem; }
+    }
+
+    @media (max-width: 992px) {
+      .section-gate { width: 140px; height: 140px; }
+      .section-gate span { font-size: 1.9rem; letter-spacing: 3px; }
+      .map { gap: 16px; padding: 15px; }
+    }
+
+    @media (max-width: 768px) {
+      .section-gate {
+        width: 120px;
+        height: 120px;
+      }
+      .section-gate span {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+      }
+      .hud-top {
+        font-size: 14px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .map {
+        align-content: flex-start;
+        padding-top: 80px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .section-gate {
+        width: 100px;
+        height: 100px;
+      }
+      .section-gate span {
+        font-size: 1.2rem;
+      }
+      #initial-quest-notification {
+        padding: 20px;
+      }
+      .modal-content {
+        padding: 20px;
+      }
+    }
+
+    /* All terminal windows responsive */
+    .nexus-terminal,
+    .experience-terminal,
+    .arsenal-terminal,
+    .vault-terminal,
+    .achievement-terminal,
+    .contact-game-ui,
+    .status-window,
+    .growth-window {
+      width: 94%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .nexus-grid,
+    .arsenal-grid,
+    .stat-rings,
+    .vault-grid,
+    .feats-grid,
+    .contact-slots {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .nexus-grid,
+      .arsenal-grid,
+      .stat-rings,
+      .vault-grid,
+      .feats-grid,
+      .contact-slots {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Scrollable content safety */
+    .nexus-scroll-container,
+    .arsenal-grid,
+    .vault-grid,
+    .feats-grid {
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+
+    /* Ensure no overflow issues */
+    .quest-chain,
+    .growth-timeline {
+      padding-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="accept-screen" onclick="beginAwakening()">
+  <div class="room-bg"></div>
+  <div class="room-texture"></div>
+  <div class="vignette"></div>
+  <div class="flare-container"></div>
+  <div class="particles" id="particles"></div>
+
+  <div class="system-viewport">
+    <div class="hologram-card" id="card">
+      <div class="rail rail-top"></div>
+      <div class="rail rail-bottom"></div>
+      <div class="panel-surface">
+        <div class="scanline" id="scan"></div>
+        <div class="notification-box">
+          <div class="icon-circle">!</div>
+          <div class="title">NOTIFICATION</div>
+        </div>
+        <div class="content-body">
+          You have acquired the qualifications<br>
+          to be a <span class="player-text">Player</span>.<br>
+          <span style="font-size: 18px; opacity: 0.7;">(Click to Accept)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main-content" id="mainContent">
+  <div class="scene">
+    <div class="hud-top">
+      <div>HUNTER STATUS</div>
+      <div>PENDEM VAMSI – LEVEL UP</div>
+    </div>
+    <div class="map">
+      <div class="section-gate gate-1" onclick="showSection('profile')"><span>PROFILE</span></div>
+      <div class="section-gate gate-2" onclick="showSection('education')"><span>EDUCATION</span></div>
+      <div class="section-gate gate-3" onclick="showSection('skills')"><span>SKILLS</span></div>
+      <div class="section-gate gate-4" onclick="showSection('internship')"><span>INTERNSHIP</span></div>
+      <div class="section-gate gate-5" onclick="showSection('projects')"><span>PROJECTS</span></div>
+      <div class="section-gate gate-6" onclick="showSection('certificates')"><span>CERTIFICATES</span></div>
+      <div class="section-gate gate-7" onclick="showSection('achievements')"><span>ACHIEVEMENTS</span></div>
+      <div class="section-gate gate-8" onclick="showSection('contact')"><span>CONTACT</span></div>
+       
+    </div>
+  </div>
+
+  <div id="initial-quest-notification">
+    <div class="quest-notification-header">NOTIFICATION</div>
+    <div class="quest-notification-title">Daily Quest: Player Awakening</div>
+    <div class="quest-notification-body">
+      Explore your status and accept your destiny.<br>
+      The System is watching.
+    </div>
+    <button class="quest-notification-btn" onclick="closeInitialQuest()">ACCEPT</button>
+  </div>
+
+  <!-- Hidden modals for each section -->
+   
+<div id="profile-modal" class="section-modal">
+  <div class="modal-content status-window">
+    <span class="modal-close" onclick="closeSection('profile')">&times;</span>
+    
+    <div class="status-header">
+      <div class="status-title-group">
+        <h2 class="status-main-title">STATUS</h2>
+        <div class="status-subtitle">PLAYER INFORMATION</div>
+      </div>
+      <div class="player-rank">
+        <span class="rank-label">RANK</span>
+        <span class="rank-value">E-RANK (AWAKENING)</span>
+      </div>
+    </div>
+
+    <div class="status-main-grid">
+      <div class="info-column">
+        <div class="info-item">
+          <span class="info-label">NAME:</span>
+          <span class="info-value">PENDEM VAMSI</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">JOB:</span>
+          <span class="info-value highlight">FULL-STACK DEVELOPER</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">LEVEL:</span>
+          <span class="info-value highlight">01</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">TITLE:</span>
+          <span class="info-value">SYSTEM ARCHITECT</span>
+        </div>
+      </div>
+
+      <div class="stats-column">
+        <div class="stat-box">
+          <div class="stat-info"><span>STRENGTH (BACKEND)</span><span>85</span></div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 85%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-info"><span>AGILITY (FRONTEND)</span><span>80</span></div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-info"><span>SENSE (LOGIC)</span><span>92</span></div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 92%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-info"><span>INTELLIGENCE (R&D)</span><span>88</span></div>
+          <div class="stat-bar"><div class="stat-fill" style="width: 88%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-description">
+      <div class="desc-header">DESCRIPTION</div>
+      <p>
+        A highly motivated Computer Science graduate with a specialized build in 
+        <strong>Java Technologies</strong> and <strong>MERN Stack</strong>. 
+        Possesses unique skills in Cloud Infrastructure (AWS) and AI-driven 
+        financial modeling. Currently seeking to join a <strong>Top-Tier Guild</strong> 
+        to deploy scalable solutions and conquer complex engineering dungeons.
+      </p>
+    </div>
+  </div>
+</div>
+
+ <div id="education-modal" class="section-modal">
+  <div class="modal-content growth-window">
+    <span class="modal-close" onclick="closeSection('education')">&times;</span>
+    
+    <div class="status-header">
+      <div class="status-title-group">
+        <h2 class="status-main-title">GROWTH LOG</h2>
+        <div class="status-subtitle">ACADEMIC ADVANCEMENT</div>
+      </div>
+    </div>
+
+    <div class="growth-timeline">
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <div class="growth-date">2020 - 2024</div>
+          <div class="growth-title highlight">B.Tech in Computer Science</div>
+          <div class="growth-location">St. Ann’s College of Engineering and Technology, Vetapalem</div>
+          <div class="growth-stats">
+            <span class="stat-tag">GPA: 7.42</span>
+            <span class="stat-tag">COMPLETED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <div class="growth-date">2018 - 2020</div>
+          <div class="growth-title">Intermediate (MPC)</div>
+          <div class="growth-location">Sri Medhavi Junior College, Chirala</div>
+          <div class="growth-stats">
+            <span class="stat-tag">GPA: 8.89</span>
+            <span class="stat-tag">COMPLETED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <div class="growth-date">2017 - 2018</div>
+          <div class="growth-title">SSC (Secondary School)</div>
+          <div class="growth-location">Sri Geethanjali High School, Epurupalem</div>
+          <div class="growth-stats">
+            <span class="stat-tag">GPA: 9.0</span>
+            <span class="stat-tag">COMPLETED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div id="skills-modal" class="section-modal">
+  <div class="modal-content nexus-terminal">
+    <span class="modal-close" onclick="closeSection('skills')">&times;</span>
+    
+    <div class="nexus-header">
+      <div class="nexus-title-group">
+        <h2 class="nexus-main-title">TECHNICAL_LINK</h2>
+        <div class="nexus-subtitle">AUTHORIZED ACCESS: VAMSI_PENDEM</div>
+      </div>
+      <div class="system-status">
+        <span class="status-pulse"></span> SYSTEM_STABLE
+      </div>
+    </div>
+
+    <div class="nexus-scroll-container">
+      <div class="nexus-grid">
+        
+        <div class="nexus-box primary-box" style="--n-color: #00f2ff;">
+          <div class="scan-bar"></div>
+          <div class="box-tag">CORE_LANGUAGES</div>
+          <div class="lang-grid">
+            <div class="lang-item"><span>☕</span> JAVA</div>
+            <div class="lang-item"><span>🐍</span> PYTHON</div>
+            <div class="lang-item"><span>👾</span> C++</div>
+            <div class="lang-item"><span>📜</span> JS (ES6)</div>
+          </div>
+        </div>
+
+        <div class="nexus-box" style="--n-color: #bc13fe;">
+          <div class="box-tag">JAVA_TECHNOLOGIES</div>
+          <div class="node-list">
+            <span>CORE JAVA</span><span>OOPs</span><span>COLLECTIONS</span>
+            <span>MULTITHREADING</span><span>JDBC</span>
+          </div>
+        </div>
+
+        <div class="nexus-box" style="--n-color: #00ff88;">
+          <div class="box-tag">WEB_ARCHITECT</div>
+          <div class="node-list">
+            <span>HTML5/CSS3</span><span>REACT.JS</span><span>ANGULAR</span>
+            <span>RESTful APIs</span><span>JSON</span><span>HTTP/HTTPS</span>
+          </div>
+        </div>
+
+        <div class="nexus-box" style="--n-color: #ff9d00;">
+          <div class="box-tag">BACKEND_SYSTEMS</div>
+          <div class="node-list">
+            <span>NODE.JS</span><span>EXPRESS.JS</span><span>JAVA (FLASK)</span>
+          </div>
+        </div>
+
+        <div class="nexus-box" style="--n-color: #ff4444;">
+          <div class="box-tag">CLOUD_OPS_TOOLS</div>
+          <div class="node-list">
+            <span>AWS (EC2/S3/IAM)</span><span>GIT / GITHUB</span>
+            <span>POSTMAN</span><span>VS CODE</span>
+          </div>
+        </div>
+
+        <div class="nexus-box" style="--n-color: #ffd700;">
+          <div class="box-tag">DATABASES</div>
+          <div class="node-list">
+            <span>MYSQL</span><span>SQL</span><span>MONGODB</span>
+          </div>
+        </div>
+
+        <div class="nexus-box wide-box" style="--n-color: #ffffff;">
+          <div class="box-tag">ENGINEERING_PRINCIPLES_&_LOGIC</div>
+          <div class="logic-matrix">
+            <div class="logic-cell">DSA & PROBLEM SOLVING</div>
+            <div class="logic-cell">SOLID PRINCIPLES</div>
+            <div class="logic-cell">MVC ARCHITECTURE</div>
+            <div class="logic-cell">SDLC & AGILE</div>
+            <div class="logic-cell">CODE REUSABILITY</div>
+            <div class="logic-cell">DEBUGGING</div>
+            <div class="logic-cell">VERSION CONTROL BEST PRACTICES</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div id="internship-modal" class="section-modal">
+  <div class="modal-content experience-terminal">
+    <span class="modal-close" onclick="closeSection('internship')">&times;</span>
+    
+    <div class="terminal-header">
+      <div class="glitch-wrapper">
+        <h2 class="quest-title" data-text="EXPERIENCE_LOG">EXPERIENCE_LOG</h2>
+      </div>
+      <div class="system-readout">
+        <span class="readout-item">TOTAL_XP: +2500</span>
+        <span class="readout-item">STATUS: MASTERED</span>
+      </div>
+    </div>
+
+    <div class="quest-chain">
+      <div class="quest-item" style="--q-color: #ff66aa;">
+        <div class="quest-meta">
+          <div class="quest-number">01</div>
+          <div class="quest-line"></div>
+        </div>
+        
+        <div class="quest-card-v2">
+          <div class="card-glow"></div>
+          <div class="quest-info">
+            <div class="quest-top">
+              <h3 class="company-name">MAKE SKILLED</h3>
+              <span class="quest-rank">RANK: S</span>
+            </div>
+            <div class="quest-role">FULL STACK // MERN_SPECIALIST</div>
+            <div class="quest-duration">MAY 2023 - JULY 2023 [ONLINE]</div>
+            
+            <div class="quest-objective">
+              <div class="obj-line"><span></span> Developed React Password Generator using React.js for high-security logic.</div>
+              <div class="obj-line"><span></span> Engineered dynamic complexity selectors for enhanced cryptography.</div>
+            </div>
+
+            <div class="quest-rewards">
+              <span class="reward-tag">#REACT</span>
+              <span class="reward-tag">#JS_ES6</span>
+              <span class="reward-tag">#MERN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quest-item" style="--q-color: #ff9d00;">
+        <div class="quest-meta">
+          <div class="quest-number">02</div>
+          <div class="quest-line"></div>
+        </div>
+        
+        <div class="quest-card-v2">
+          <div class="card-glow"></div>
+          <div class="quest-info">
+            <div class="quest-top">
+              <h3 class="company-name">MAKE SKILLED</h3>
+              <span class="quest-rank">RANK: A</span>
+            </div>
+            <div class="quest-role">AWS_INFRASTRUCTURE_INTERN</div>
+            <div class="quest-duration">JULY 2022 - OCT 2022 [ONLINE]</div>
+            
+            <div class="quest-objective">
+              <div class="obj-line"><span></span> Implemented Auto-Celebrity Recognition via AWS Rekognition API.</div>
+              <div class="obj-line"><span></span> Processed real-time biometric tagging for image/video data streams.</div>
+            </div>
+
+            <div class="quest-rewards">
+              <span class="reward-tag">#AWS_REKOGNITION</span>
+              <span class="reward-tag">#S3_BUCKETS</span>
+              <span class="reward-tag">#AI_VISION</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div id="projects-modal" class="section-modal">
+  <div class="modal-content arsenal-terminal">
+    <span class="modal-close" onclick="closeSection('projects')">&times;</span>
+    
+    <div class="terminal-header">
+      <div class="glitch-wrapper">
+        <h2 class="arsenal-title" data-text="DEPLOYED_PROJECTS">DEPLOYED_PROJECTS</h2>
+      </div>
+      <div class="system-stats">
+        <span>ACTIVE_CORES: 04</span> | <span>SYNC_RATE: 98%</span>
+      </div>
+    </div>
+
+    <div class="arsenal-grid">
+      
+      <div class="project-card" style="--p-glow: #ffaa44;">
+        <div class="project-header">
+          <span class="project-rank">RANK: S</span>
+          <span class="project-date">MAY 2024</span>
+        </div>
+        <h3 class="project-name">AI FINANCIAL ADVISOR</h3>
+        <p class="project-tagline">AI/ML Decision Support System</p>
+        
+        <div class="project-details">
+          <div class="detail-line"><span></span>Engineered chatbot via Streamlit & ARIMA.</div>
+          <div class="detail-line"><span></span>Deployed Sentiment Analysis on live news.</div>
+          <div class="detail-line"><span></span>Visualized risk via Plotly engine.</div>
+        </div>
+
+        <div class="tech-stack">
+          <span>Python</span><span>ARIMA</span><span>Plotly</span><span>Streamlit</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--p-glow: #00f2ff;">
+        <div class="project-header">
+          <span class="project-rank">RANK: A+</span>
+          <span class="project-date">NOV 2023</span>
+        </div>
+        <h3 class="project-name">SEAMLESS VIDEO CONF</h3>
+        <p class="project-tagline">Real-Time WebRTC Communication</p>
+        
+        <div class="project-details">
+          <div class="detail-line"><span></span>Multi-participant stream syncing.</div>
+          <div class="detail-line"><span></span>Socket.io real-time chat integration.</div>
+          <div class="detail-line"><span></span>+20% Engagement optimization.</div>
+        </div>
+
+        <div class="tech-stack">
+          <span>Node.js</span><span>WebRTC</span><span>Socket.io</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--p-glow: #ff4444;">
+        <div class="project-header">
+          <span class="project-rank">RANK: B</span>
+          <span class="project-date">SEP 2023</span>
+        </div>
+        <h3 class="project-name">COVID-19 MONITOR</h3>
+        <p class="project-tagline">Global Data Visualization</p>
+        
+        <div class="project-details">
+          <div class="detail-line"><span></span>Real-time fetching via disease.sh API.</div>
+          <div class="detail-line"><span></span>Global death/recovery data parsing.</div>
+        </div>
+
+        <div class="tech-stack">
+          <span>JS</span><span>API_INTEGRATION</span><span>DATA_VIZ</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--p-glow: #00ff88;">
+        <div class="project-header">
+          <span class="project-rank">RANK: A</span>
+          <span class="project-date">JUL 2023</span>
+        </div>
+        <h3 class="project-name">LIVE LOC_TRACKER</h3>
+        <p class="project-tagline">Geospatial Data Sharing</p>
+        
+        <div class="project-details">
+          <div class="detail-line"><span></span>Unique ID-based location broadcasting.</div>
+          <div class="detail-line"><span></span>Real-time coordinate synchronization.</div>
+        </div>
+
+        <div class="tech-stack">
+          <span>Geolocation</span><span>Firebase</span><span>Real-Time</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="terminal-footer">
+      <div class="footer-msg">SELECT MODULE FOR SOURCE_CODE_ACCESS</div>
+    </div>
+  </div>
+</div>
+
+  <div id="certificates-modal" class="section-modal">
+  <div class="modal-content vault-terminal">
+    <span class="modal-close" onclick="closeSection('certificates')">&times;</span>
+    
+    <div class="terminal-header">
+      <div class="glitch-wrapper">
+        <h2 class="vault-title" data-text="ELITE_CREDENTIALS">ELITE_CREDENTIALS</h2>
+      </div>
+      <div class="security-status">LEVEL 03 CLEARANCE GRANTED</div>
+    </div>
+
+    <div class="vault-grid">
+      
+      <div class="achievement-card" style="--a-color: #00a4ef;">
+        <div class="achievement-header">
+          <div class="hex-badge">AZ</div>
+          <div class="badge-glow"></div>
+        </div>
+        <div class="achievement-info">
+          <h3 class="cert-name">MICROSOFT AZURE FUNDAMENTALS</h3>
+          <p class="cert-issuer">CLOUD_PROTOCOL: AZ-900</p>
+          <div class="valid-bar">
+            <div class="fill"></div>
+          </div>
+          <span class="cert-status">VERIFIED_CREDENTIAL</span>
+        </div>
+      </div>
+
+      <div class="achievement-card" style="--a-color: #ff9900;">
+        <div class="achievement-header">
+          <div class="hex-badge">AWS</div>
+          <div class="badge-glow"></div>
+        </div>
+        <div class="achievement-info">
+          <h3 class="cert-name">AWS CERTIFICATION</h3>
+          <p class="cert-issuer">INFRASTRUCTURE_MASTERY</p>
+          <div class="valid-bar">
+            <div class="fill"></div>
+          </div>
+          <span class="cert-status">VERIFIED_CREDENTIAL</span>
+        </div>
+      </div>
+
+      <div class="achievement-card" style="--a-color: #44ffaa;">
+        <div class="achievement-header">
+          <div class="hex-badge">JS</div>
+          <div class="badge-glow"></div>
+        </div>
+        <div class="achievement-info">
+          <h3 class="cert-name">MERN STACK CERTIFICATION</h3>
+          <p class="cert-issuer">FULL_STACK_LICENSE</p>
+          <div class="valid-bar">
+            <div class="fill"></div>
+          </div>
+          <span class="cert-status">VERIFIED_CREDENTIAL</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="terminal-footer">
+      <div class="footer-msg">>>> ALL CREDENTIALS CRYPTOGRAPHICALLY SECURED <<<</div>
+    </div>
+  </div>
+</div>
+
+ <div id="achievements-modal" class="section-modal">
+  <div class="modal-content achievement-terminal">
+    <span class="modal-close" onclick="closeSection('achievements')">&times;</span>
+    
+    <div class="terminal-header">
+      <div class="header-main">
+        <h2 class="title-glitch" data-text="SYSTEM_TRIUMPHS">SYSTEM_TRIUMPHS</h2>
+        <div class="achievement-score">
+          <span class="score-label">ACHIEVEMENT_POINTS:</span>
+          <span class="score-value">3250</span>
+        </div>
+      </div>
+      <div class="header-divider"></div>
+    </div>
+
+    <div class="feats-grid">
+      
+      <div class="feat-card" style="--f-color: #aa88ff;">
+        <div class="feat-decoration">
+          <div class="feat-icon">🏆</div>
+          <div class="feat-rank">RANK: EX</div>
+        </div>
+        <div class="feat-body">
+          <h3 class="feat-title">IRCTC PRESTIGE AWARD</h3>
+          <p class="feat-desc">Outstanding Project Presentation & Paper Publication recognized by <span class="highlight">IRCTC</span>.</p>
+          <div class="feat-meta">UNLOCKED: 2023 // SECTOR: RESEARCH</div>
+        </div>
+      </div>
+
+      <div class="feat-card" style="--f-color: #00ff88;">
+        <div class="feat-decoration">
+          <div class="feat-icon">⌨️</div>
+          <div class="feat-rank">RANK: CAPTAIN</div>
+        </div>
+        <div class="feat-body">
+          <h3 class="feat-title">CYBER_SEC COMMANDER</h3>
+          <p class="feat-desc">Leading the <span class="highlight">College Hacking Club</span>. Fostering a community of cybersecurity enthusiasts.</p>
+          <div class="feat-meta">ACTIVE_COMMAND // SECTOR: LEADERSHIP</div>
+        </div>
+      </div>
+
+      <div class="feat-card" style="--f-color: #ffcc00;">
+        <div class="feat-decoration">
+          <div class="feat-icon">⚡</div>
+          <div class="feat-rank">RANK: PRO</div>
+        </div>
+        <div class="feat-body">
+          <h3 class="feat-title">CODECHEF STRIKE</h3>
+          <p class="feat-desc">Completed <span class="highlight">100+ Problems</span>. Ranked 850 in Dec Long Challenge 2022.</p>
+          <div class="feat-meta">ELO: 1400+ // SECTOR: ALGORITHMS</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="terminal-footer">
+      <div class="footer-scanner"></div>
+      <div class="footer-text">SCANNING COMPLETE: NO NEW ACHIEVEMENTS DETECTED</div>
+    </div>
+  </div>
+</div>
+
+<div id="contact-modal" class="section-modal">
+  <div class="modal-content contact-game-ui">
+    
+    <div class="ui-corner-decor">
+      <span>COMMS_ESTABLISHED</span>
+      <div class="pulsing-dot"></div>
+    </div>
+
+    <div class="quest-reward-header">
+      <h1 class="quest-main-title">CONNECTION_FOUND</h1>
+      <div class="quest-subtitle">NEURAL LINK AVAILABLE FOR SYNC</div>
+    </div>
+
+    <div class="contact-slots">
+      
+      <div class="reward-slot" style="--slot-color: #ffdd44;">
+        <div class="slot-hex">📞</div>
+        <div class="slot-info">
+          <span class="slot-type">VOICE_CHANNEL</span>
+          <span class="slot-val">+91 9032552849</span>
+        </div>
+      </div>
+
+      <div class="reward-slot" style="--slot-color: #00f2ff;">
+        <div class="slot-hex">✉️</div>
+        <div class="slot-info">
+          <span class="slot-type">DATA_BURST</span>
+          <span class="slot-val">pendem.vamsi12@gmail.com</span>
+        </div>
+      </div>
+
+      <a href="https://linkedin.com/in/vamsipendem" target="_blank" class="reward-slot interactive-slot" style="--slot-color: #0077b5;">
+        <div class="slot-hex">🔗</div>
+        <div class="slot-info">
+          <span class="slot-type">PROFESSIONAL_SYNC</span>
+          <span class="slot-val">/in/vamsipendem</span>
+        </div>
+        <div class="click-hint">SYNC_LINK</div>
+      </a>
+
+      <a href="https://github.com/vamsipendem" target="_blank" class="reward-slot interactive-slot" style="--slot-color: #ffffff;">
+        <div class="slot-hex">🐙</div>
+        <div class="slot-info">
+          <span class="slot-type">SOURCE_ACCESS</span>
+          <span class="slot-val">/vamsipendem</span>
+        </div>
+        <div class="click-hint">DOWNLOAD_REPO</div>
+      </a>
+    </div>
+
+    <div class="quest-action-area">
+      <div class="claim-button" onclick="closeSection('contact')">
+        <div class="btn-glitch"></div>
+        <span class="btn-text">TERMINATE_CONNECTION</span>
+        <span class="btn-sub">PRESS TO EXIT TERMINAL</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// 1. SOUND LOGIC (update src if needed; many use similar files from myinstants/zedge)
+// You can replace with: https://www.myinstants.com/media/sounds/system-notifikason-solo-leveling.mp3
+const systemSound = new Audio("../system-notifikason-solo-leveling.mp3");
+systemSound.volume = 0.6;
+
+function playSystemSound() {
+  systemSound.currentTime = 0;
+  systemSound.play().catch(err => console.log("Sound blocked: ", err));
+}
+
+// 2. ACCEPTANCE ANIMATIONS
+const tl = gsap.timeline();
+tl.from("#card", {scaleX:0, opacity:0, duration:0.7, ease:"power3.out"})
+  .from(".panel-surface", {scaleY:0, duration:0.5, ease:"expo.out"}, "-=0.4");
+
+gsap.to("#scan", {top:"100%", duration:3.2, repeat:-1, ease:"none"});
+gsap.to("#card", {y:-12, rotationY:3, rotationX:9, duration:5, repeat:-1, yoyo:true, ease:"sine.inOut"});
+
+// Particles
+const particlesContainer = document.getElementById('particles');
+for(let i=0;i<40;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  p.style.left=Math.random()*100+'%';
+  p.style.animationDelay=Math.random()*15+'s';
+  particlesContainer.appendChild(p);
+}
+
+// 3. THE TRIGGER LOGIC
+function beginAwakening() {
+  playSystemSound();
+  gsap.to("#accept-screen",{opacity:0, scale:0.9, duration:1.2, ease:"power4.in", onComplete:()=>{
+    document.getElementById("accept-screen").style.display="none";
+    gsap.to("#mainContent",{opacity:1, pointerEvents:"auto", duration:1});
+    setTimeout(showInitialQuest, 1500);
+  }});
+}
+
+function showInitialQuest(){
+  const el = document.getElementById("initial-quest-notification");
+  el.style.display = "block";
+  playSystemSound(); 
+  gsap.fromTo(el, {opacity:0, scale:0.7, y:50}, {opacity:1, scale:1, y:0, duration:0.8, ease:"back.out(1.7)"});
+}
+
+function closeInitialQuest(){
+  gsap.to("#initial-quest-notification",{opacity:0, scale:0.8, duration:0.5, onComplete:()=>{
+    document.getElementById("initial-quest-notification").style.display="none";
+  }});
+}
+
+function openQuestPanel() {
+  playSystemSound();
+  alert("Quest Log Accessed!\n\n[Daily Quest Completed: Player Awakening]\n[New Quest Unlocked: Explore All Gates]");
+}
+
+// Section modal controls
+function showSection(id) {
+  playSystemSound();
+  document.getElementById(`${id}-modal`).style.display = "flex";
+}
+
+function closeSection(id) {
+  document.getElementById(`${id}-modal`).style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
